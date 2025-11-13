@@ -1,0 +1,26 @@
+{
+  "name": "krack-the-kode",
+  "version": "1.0.0",
+  "description": "A number-guessing puzzle game by Kuroonai",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 -c-1",
+    "dev": "npx live-server --port=8080",
+    "build": "npm run build:pwa",
+    "build:pwa": "node build-pwa.js"
+  },
+  "keywords": [
+    "game",
+    "puzzle",
+    "number-guessing",
+    "mastermind",
+    "code-breaking"
+  ],
+  "author": "Kuroonai",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {}
+}
