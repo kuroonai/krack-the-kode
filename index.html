@@ -112,6 +112,9 @@
                     <button class="icon-btn" onclick="game.toggleSound()">🔊</button>
                 </div>
                 <div class="header-center">
+                    <div id="currentPlayerIndicator" class="player-indicator" style="display:none;">
+                        <span class="label" id="currentPlayerLabel">Player 1</span>
+                    </div>
                     <div class="score-display">
                         <span class="label">Score</span>
                         <span id="currentScore">0</span>
@@ -168,12 +171,13 @@
             </div>
         </div>
 
-        <!-- Two Player Setup -->
+        <!-- Two Player Setup - Player 1 -->
         <div id="twoPlayerSetup" class="screen">
             <div class="setup-container">
                 <h2>Two Player Mode</h2>
                 <div class="player-setup">
                     <h3>Player 1 - Set Your Code</h3>
+                    <p class="setup-hint">Player 2, please look away!</p>
                     <div id="player1Code" class="code-input-display"></div>
                     <div class="mini-numpad">
                         <button onclick="game.addPlayerCode(1, 1)">1</button>
@@ -190,6 +194,70 @@
                         <button onclick="game.deletePlayerCode(1)">⌫</button>
                     </div>
                     <button class="confirm-btn" onclick="game.confirmPlayer1Code()">Confirm Code</button>
+                    <button class="back-btn" onclick="game.showMainMenu()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Player Setup - Player 2 -->
+        <div id="twoPlayerSetup2" class="screen">
+            <div class="setup-container">
+                <h2>Two Player Mode</h2>
+                <div class="player-setup">
+                    <h3>Player 2 - Set Your Code</h3>
+                    <p class="setup-hint">Player 1, please look away!</p>
+                    <div id="player2Code" class="code-input-display"></div>
+                    <div class="mini-numpad">
+                        <button onclick="game.addPlayerCode(2, 1)">1</button>
+                        <button onclick="game.addPlayerCode(2, 2)">2</button>
+                        <button onclick="game.addPlayerCode(2, 3)">3</button>
+                        <button onclick="game.addPlayerCode(2, 4)">4</button>
+                        <button onclick="game.addPlayerCode(2, 5)">5</button>
+                        <button onclick="game.addPlayerCode(2, 6)">6</button>
+                        <button onclick="game.addPlayerCode(2, 7)">7</button>
+                        <button onclick="game.addPlayerCode(2, 8)">8</button>
+                        <button onclick="game.addPlayerCode(2, 9)">9</button>
+                        <button onclick="game.clearPlayerCode(2)">Clear</button>
+                        <button onclick="game.addPlayerCode(2, 0)">0</button>
+                        <button onclick="game.deletePlayerCode(2)">⌫</button>
+                    </div>
+                    <button class="confirm-btn" onclick="game.confirmPlayer2Code()">Start Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Turn Transition Screen -->
+        <div id="turnTransition" class="screen">
+            <div class="transition-container">
+                <h1 id="turnPlayerName" class="turn-title">Player 1's Turn</h1>
+                <p class="turn-instruction">Get ready to crack the code!</p>
+                <p class="turn-hint">Other player, please look away</p>
+                <button class="menu-btn" onclick="game.startPlayerTurn()">Start Turn</button>
+            </div>
+        </div>
+
+        <!-- Two Player Victory Screen -->
+        <div id="twoPlayerVictory" class="screen">
+            <div class="victory-container">
+                <h1 class="victory-title">🎉 GAME OVER! 🎉</h1>
+                <div id="winnerAnnouncement" class="winner-announcement"></div>
+                <div class="two-player-stats">
+                    <div class="player-result">
+                        <h3>Player 1</h3>
+                        <p>Tries: <span id="player1Tries"></span></p>
+                        <p>Time: <span id="player1Time"></span></p>
+                        <p>Status: <span id="player1Status"></span></p>
+                    </div>
+                    <div class="player-result">
+                        <h3>Player 2</h3>
+                        <p>Tries: <span id="player2Tries"></span></p>
+                        <p>Time: <span id="player2Time"></span></p>
+                        <p>Status: <span id="player2Status"></span></p>
+                    </div>
+                </div>
+                <div class="victory-buttons">
+                    <button class="menu-btn" onclick="game.startTwoPlayer()">Play Again</button>
+                    <button class="menu-btn" onclick="game.showMainMenu()">Main Menu</button>
                 </div>
             </div>
         </div>

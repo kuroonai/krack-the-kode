@@ -26,7 +26,15 @@ class KrackTheKode {
             player1Code: [],
             player2Code: [],
             player1Score: 0,
-            player2Score: 0
+            player2Score: 0,
+            player1Tries: 0,
+            player2Tries: 0,
+            player1Time: 0,
+            player2Time: 0,
+            player1Won: false,
+            player2Won: false,
+            player1Attempts: [],
+            player2Attempts: []
         };
         
         this.init();
@@ -302,7 +310,13 @@ class KrackTheKode {
             startTime: Date.now(),
             isPlaying: true
         };
-        
+
+        // Hide player indicator in single player mode
+        const playerIndicator = document.getElementById('currentPlayerIndicator');
+        if (playerIndicator) {
+            playerIndicator.style.display = 'none';
+        }
+
         console.log('Secret code:', this.gameState.secretCode); // For debugging
         this.showScreen('gameScreen');
         this.updateGameUI();
@@ -318,10 +332,19 @@ class KrackTheKode {
             player2Code: [],
             player1Score: 0,
             player2Score: 0,
+            player1Tries: 0,
+            player2Tries: 0,
+            player1Time: 0,
+            player2Time: 0,
+            player1Won: false,
+            player2Won: false,
+            player1Attempts: [],
+            player2Attempts: [],
             isPlaying: false
         };
-        
+
         this.showScreen('twoPlayerSetup');
+        this.updatePlayerCodeDisplay(1);
     }
     
     addDigit(digit) {
@@ -430,26 +453,36 @@ class KrackTheKode {
     }
     
     handleVictory() {
+        if (this.gameState.mode === 'two') {
+            this.handleTwoPlayerVictory();
+            return;
+        }
+
         this.gameState.isPlaying = false;
         this.stopBackgroundMusic();
         this.sounds.success();
-        
+
         const finalScore = this.calculateScore();
         const timeElapsed = Math.floor((Date.now() - this.gameState.startTime) / 1000);
-        
+
         document.getElementById('crackedCode').textContent = this.gameState.secretCode.join('');
         document.getElementById('triesUsed').textContent = this.settings.maxTries - this.gameState.triesLeft;
         document.getElementById('timeElapsed').textContent = `${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')}`;
         document.getElementById('finalScore').textContent = finalScore;
-        
+
         this.showScreen('victoryScreen');
     }
-    
+
     handleGameOver() {
+        if (this.gameState.mode === 'two') {
+            this.handleTwoPlayerGameOver();
+            return;
+        }
+
         this.gameState.isPlaying = false;
         this.stopBackgroundMusic();
         this.sounds.fail();
-        
+
         document.getElementById('revealedCode').textContent = this.gameState.secretCode.join('');
         this.showScreen('gameOverScreen');
     }
@@ -583,11 +616,163 @@ class KrackTheKode {
     
     confirmPlayer1Code() {
         if (this.gameState.player1Code.length === this.settings.codeLength) {
-            // Switch to player 2 setup
-            // Implementation would continue here for full two-player mode
-            alert('Two-player mode is in development. Starting single player instead.');
-            this.startSinglePlayer();
+            this.sounds.click();
+            this.showScreen('twoPlayerSetup2');
+            this.updatePlayerCodeDisplay(2);
+        } else {
+            alert(`Please enter a ${this.settings.codeLength}-digit code!`);
         }
+    }
+
+    confirmPlayer2Code() {
+        if (this.gameState.player2Code.length === this.settings.codeLength) {
+            this.sounds.click();
+            // Both codes set, now start with Player 1's turn
+            this.gameState.currentPlayer = 1;
+            this.showTurnTransition(1);
+        } else {
+            alert(`Please enter a ${this.settings.codeLength}-digit code!`);
+        }
+    }
+
+    showTurnTransition(player) {
+        const playerName = player === 1 ? 'Player 1' : 'Player 2';
+        document.getElementById('turnPlayerName').textContent = `${playerName}'s Turn`;
+        this.showScreen('turnTransition');
+    }
+
+    startPlayerTurn() {
+        // Set the secret code to the opponent's code
+        this.gameState.secretCode = this.gameState.currentPlayer === 1
+            ? [...this.gameState.player2Code]
+            : [...this.gameState.player1Code];
+
+        this.gameState.currentGuess = [];
+        this.gameState.attempts = [];
+        this.gameState.triesLeft = this.settings.maxTries;
+        this.gameState.undosLeft = 3;
+        this.gameState.startTime = Date.now();
+        this.gameState.isPlaying = true;
+
+        // Show player indicator in two-player mode
+        const playerIndicator = document.getElementById('currentPlayerIndicator');
+        const playerLabel = document.getElementById('currentPlayerLabel');
+        playerIndicator.style.display = 'block';
+        playerLabel.textContent = `Player ${this.gameState.currentPlayer}`;
+
+        console.log(`Player ${this.gameState.currentPlayer} - Secret code:`, this.gameState.secretCode);
+        this.showScreen('gameScreen');
+        this.updateGameUI();
+        this.playBackgroundMusic();
+    }
+
+    handleTwoPlayerVictory() {
+        this.gameState.isPlaying = false;
+        this.stopBackgroundMusic();
+        this.sounds.success();
+
+        const currentPlayer = this.gameState.currentPlayer;
+        const timeElapsed = Math.floor((Date.now() - this.gameState.startTime) / 1000);
+        const triesUsed = this.settings.maxTries - this.gameState.triesLeft;
+
+        // Save current player's results
+        if (currentPlayer === 1) {
+            this.gameState.player1Tries = triesUsed;
+            this.gameState.player1Time = timeElapsed;
+            this.gameState.player1Won = true;
+            this.gameState.player1Attempts = [...this.gameState.attempts];
+        } else {
+            this.gameState.player2Tries = triesUsed;
+            this.gameState.player2Time = timeElapsed;
+            this.gameState.player2Won = true;
+            this.gameState.player2Attempts = [...this.gameState.attempts];
+        }
+
+        // Check if both players have played
+        if (currentPlayer === 1) {
+            // Player 1 finished, now it's Player 2's turn
+            this.gameState.currentPlayer = 2;
+            this.showTurnTransition(2);
+        } else {
+            // Both players finished, show final results
+            this.showTwoPlayerResults();
+        }
+    }
+
+    handleTwoPlayerGameOver() {
+        this.gameState.isPlaying = false;
+        this.stopBackgroundMusic();
+        this.sounds.fail();
+
+        const currentPlayer = this.gameState.currentPlayer;
+        const timeElapsed = Math.floor((Date.now() - this.gameState.startTime) / 1000);
+
+        // Save current player's results (they failed)
+        if (currentPlayer === 1) {
+            this.gameState.player1Tries = this.settings.maxTries;
+            this.gameState.player1Time = timeElapsed;
+            this.gameState.player1Won = false;
+            this.gameState.player1Attempts = [...this.gameState.attempts];
+        } else {
+            this.gameState.player2Tries = this.settings.maxTries;
+            this.gameState.player2Time = timeElapsed;
+            this.gameState.player2Won = false;
+            this.gameState.player2Attempts = [...this.gameState.attempts];
+        }
+
+        // Check if both players have played
+        if (currentPlayer === 1) {
+            // Player 1 finished, now it's Player 2's turn
+            this.gameState.currentPlayer = 2;
+            this.showTurnTransition(2);
+        } else {
+            // Both players finished, show final results
+            this.showTwoPlayerResults();
+        }
+    }
+
+    showTwoPlayerResults() {
+        // Determine winner
+        let winnerText = '';
+
+        if (this.gameState.player1Won && !this.gameState.player2Won) {
+            winnerText = '<h2 class="winner-text">🏆 Player 1 Wins! 🏆</h2><p>Player 2 failed to crack the code!</p>';
+        } else if (this.gameState.player2Won && !this.gameState.player1Won) {
+            winnerText = '<h2 class="winner-text">🏆 Player 2 Wins! 🏆</h2><p>Player 1 failed to crack the code!</p>';
+        } else if (this.gameState.player1Won && this.gameState.player2Won) {
+            // Both won, compare tries and time
+            if (this.gameState.player1Tries < this.gameState.player2Tries) {
+                winnerText = '<h2 class="winner-text">🏆 Player 1 Wins! 🏆</h2><p>Fewer tries used!</p>';
+            } else if (this.gameState.player2Tries < this.gameState.player1Tries) {
+                winnerText = '<h2 class="winner-text">🏆 Player 2 Wins! 🏆</h2><p>Fewer tries used!</p>';
+            } else if (this.gameState.player1Time < this.gameState.player2Time) {
+                winnerText = '<h2 class="winner-text">🏆 Player 1 Wins! 🏆</h2><p>Faster time!</p>';
+            } else if (this.gameState.player2Time < this.gameState.player1Time) {
+                winnerText = '<h2 class="winner-text">🏆 Player 2 Wins! 🏆</h2><p>Faster time!</p>';
+            } else {
+                winnerText = '<h2 class="winner-text">🤝 It\'s a Tie! 🤝</h2><p>Both players performed equally!</p>';
+            }
+        } else {
+            // Both failed
+            winnerText = '<h2 class="winner-text">💔 Both Players Failed 💔</h2><p>Better luck next time!</p>';
+        }
+
+        document.getElementById('winnerAnnouncement').innerHTML = winnerText;
+
+        // Display stats
+        const formatTime = (seconds) => {
+            return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
+        };
+
+        document.getElementById('player1Tries').textContent = this.gameState.player1Tries;
+        document.getElementById('player1Time').textContent = formatTime(this.gameState.player1Time);
+        document.getElementById('player1Status').textContent = this.gameState.player1Won ? '✓ Cracked!' : '✗ Failed';
+
+        document.getElementById('player2Tries').textContent = this.gameState.player2Tries;
+        document.getElementById('player2Time').textContent = formatTime(this.gameState.player2Time);
+        document.getElementById('player2Status').textContent = this.gameState.player2Won ? '✓ Cracked!' : '✗ Failed';
+
+        this.showScreen('twoPlayerVictory');
     }
     
     // Sound Controls

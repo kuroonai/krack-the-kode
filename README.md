@@ -15,10 +15,13 @@ Krack the Kode is an engaging number-guessing puzzle game inspired by classic co
 - Scoring system that rewards quick solving
 - Carry forward base points between rounds
 
-### Two Player Mode (Coming Soon)
-- Players set codes for each other
+### Two Player Mode ✅
+- Local pass-and-play multiplayer
+- Players set secret codes for each other
 - Turn-based gameplay
-- Competitive scoring
+- Competitive scoring with winner determination
+- Multiple victory conditions (success, tries used, time)
+- **[See detailed instructions](TWO_PLAYER_INSTRUCTIONS.md)**
 
 ### Visual Feedback System
 - 🟢 **Green**: Correct digit in correct position
@@ -78,15 +81,23 @@ npm run dev
 
 ## 🎮 How to Play
 
+### Single Player Mode
 1. **Start the Game**: Choose Single Player from the main menu
 2. **Make a Guess**: Use the number pad to enter your guess
 3. **Submit**: Press "Submit Guess" to check your code
-4. **Analyze Feedback**: 
+4. **Analyze Feedback**:
    - Green = correct position
    - Yellow = correct number, wrong position
    - Red = number not in code
 5. **Keep Guessing**: Use logic to narrow down the correct code
 6. **Win**: Find the code before running out of tries!
+
+### Two Player Mode
+1. **Start**: Choose "Two Players" from the main menu
+2. **Setup**: Each player secretly enters their code
+3. **Take Turns**: Players alternate trying to crack each other's codes
+4. **Winner**: Determined by who cracks the code with fewer tries and faster time
+5. **[Full Instructions](TWO_PLAYER_INSTRUCTIONS.md)**: Complete guide with network play setup
 
 ## ⚙️ Settings
 
@@ -142,13 +153,14 @@ Replace the audio generation in `game.js` with actual audio files:
 
 ```
 krack-the-kode/
-├── index.html          # Main HTML structure
-├── styles.css          # All styling and animations
-├── game.js            # Game logic and functionality
-├── manifest.json      # PWA configuration
-├── service-worker.js  # Offline functionality
-├── package.json       # Project dependencies
-└── README.md         # This file
+├── index.html                    # Main HTML structure
+├── styles.css                    # All styling and animations
+├── game.js                       # Game logic and functionality
+├── manifest.json                 # PWA configuration
+├── service-worker.js             # Offline functionality
+├── package.json                  # Project dependencies
+├── README.md                     # This file
+└── TWO_PLAYER_INSTRUCTIONS.md    # Two-player mode guide
 ```
 
 ## 🌐 Browser Compatibility
@@ -161,7 +173,8 @@ krack-the-kode/
 
 ## 📝 Future Enhancements
 
-- [ ] Complete Two-Player mode implementation
+- [x] Complete Two-Player mode implementation ✅
+- [ ] Add online multiplayer with WebSockets
 - [ ] Add difficulty levels
 - [ ] Implement hints system
 - [ ] Add achievements and badges
@@ -171,12 +184,13 @@ krack-the-kode/
 - [ ] Add statistics tracking
 - [ ] Create daily challenges
 - [ ] Add social sharing features
+- [ ] Add replay/review of previous games
 
 ## 🐛 Known Issues
 
-- Two-player mode is partially implemented
 - Audio files need to be added (currently using generated sounds)
 - Icons for PWA need to be created
+- Two-player mode requires manual coordination on separate devices (not synchronized)
 
 ## 📄 License
 
